@@ -1,24 +1,35 @@
- library(shiny)
+################
+#Ryan Fields
+#Feb 21 2019
+
+#CCFRP Shiny app development
+#Originally created spring 2017
+
+
+################
+
+library(shiny)
+library(shinyWidgets)
  library(rsconnect)
  library(plyr)
  library(tidyverse)
 
  
-# setwd('/Users/kodiakflds/Documents/Learning R/Shiny/CCFRP App/data')
- #Add stuff to add to app here
+image.size = 50  #pixels?
  
- #Want inputs
- #1 Camera type
- #Angle of top camera
- #Angle of bottom Camera
   
-ui <- fluidPage(theme = 'bootstrap_yeti.css',
-  
-  #Want to merge northern blue and deacon and have it be an option
+ui <- navbarPage(title = "CA Collaborative Fisheries Research Program Data: 2007-2018", theme = 'bootstrap_yeti.css',
+    
+
  
-  titlePanel(tags$h4("CA Collaborative Fisheries Research Program Data: 2007-2018")),
-  # 
- # fluidRow(column(1),column(9,tags$h2('CA Collaborative Fisheries Research Program Data: 2007-16'))),
+tabPanel('Main Data',
+ #  
+ #  
+ #  #Want to merge northern blue and deacon and have it be an option
+ # 
+ #  
+ 
+ # # fluidRow(column(1),column(9,tags$h2('CA Collaborative Fisheries Research Program Data: 2007-16'))),
     
   fluidRow(column(3,
              wellPanel(
@@ -39,7 +50,7 @@ ui <- fluidPage(theme = 'bootstrap_yeti.css',
               # tags$img(height = 200,width = 200,
               #          src = 'mlml.png'),
              
-           column(6,
+           column(9,
            tags$h4('Welcome to the CCFRP data app!'),
            tags$h5('Please select a', tags$em('Species '), ' and a',tags$em('Metric '), ' to investigate trends in catch-rates
                    and lengths in central California',tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
@@ -47,32 +58,81 @@ ui <- fluidPage(theme = 'bootstrap_yeti.css',
                    tags$a(href = 'https://https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
                    'for additional information about this program'),
            tags$h6("*** MPA = Marine Protected Area***"),
-           tags$h6("*** REF = Reference (outside MPA)***")),       
+           tags$h6("*** REF = Reference (outside MPA)***"))       
            
-           column(3
-             )),
+           # column(3
+           #   )),
+  ),
        
 
  # tags$img(height = 100,width = 100,src = 'ccfrp.png')
   
   #Use fluid row to define new rows, use column to make a space and then define width of columsn
   fluidRow(
-           column(8, plotOutput(outputId = 'fish.plot', height = 400, width = 675))),
+           column(8, plotOutput(outputId = 'fish.plot'), offset = 2)),  # ,height = 400, width = 675)
    
   fluidRow('...'),        
-  fluidRow(column(1),
-           column(3,
-                  tags$img(height = 200, width = 200, src = 'mlml.png')),
-           column(3),
-           column(3,
-                 tags$img(height = 200,width = 200,src = 'ccfrp.png')),
-           column(2))
+  fluidRow(
+           column(5),
+           column(1,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
+           column(1,
+                 tags$img(height = image.size, width = image.size,src = 'ccfrp.png')),
+           column(5))
                   
                  
             
   
   
-    )
+    ),
+
+tabPanel('Gear Data',
+         fluidRow(column(3,
+                         wellPanel(
+                           selectInput(inputId = 'fishspp',
+                                       label = 'Plot Type',
+                                       choices = c('Total Gear','By Year',
+                                                   'By Location','By Species')))),
+
+#                   
+                  column(9,
+                         tags$h4('See how different gear types fish'),
+                         tags$h5('Please select a', tags$em('Plot Type '),  ' to investigate how different,
+
+                                 Gear types hav fished in',tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
+                         tags$h5('Check out the',
+                                 tags$a(href = 'https://https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
+                                 'for additional information about this program'),
+                         tags$h6("*** MPA = Marine Protected Area***"),
+                         tags$h6("*** REF = Reference (outside MPA)***"))))
+
+)
+#                   
+#                   # column(3
+#                   #   )),
+#                   ),
+#          
+#          
+#          # tags$img(height = 100,width = 100,src = 'ccfrp.png')
+#          
+#          #Use fluid row to define new rows, use column to make a space and then define width of columsn
+#          fluidRow(
+#            column(8, plotOutput(outputId = 'gear.plot'))),  # ,height = 400, width = 675)
+#          
+#          fluidRow('...'),        
+#          fluidRow(column(1),
+#                   column(3,
+#                          tags$img(height = image.size , width = image.size, src = 'mlml.png')),
+#                   column(3),
+#                   column(3,
+#                          tags$img(height = image.size, width = image.size,src = 'ccfrp.png')),
+#                   column(2))
+#          
+#          
+#          
+#          
+#          
+# ))
+
 
   
 
@@ -90,6 +150,9 @@ fish.lengths = read.csv('data/Length.data.CCFRP_2018.csv') %>%
   mutate(Area = factor(Area, levels =c ('Ano Nuevo','Point Lobos', 'Piedras Blancas', 'Point Buchon')))
 
 species.maturities = read.csv('data/Species_Maturities_2017.csv')
+
+
+gear.data = read.csv('data/Gear.data.CCFRP_2018.csv')
 
 
 #############################
@@ -328,6 +391,11 @@ server <- function(input, output) {
       }
   })
   
+   
+  # output$gear.plot = renderPlot({
+  #   
+  #   
+  # }) 
   
 }
 
