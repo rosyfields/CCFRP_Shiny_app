@@ -18,11 +18,11 @@ library(shinyWidgets)
 image.size = 75  #pixels?
  
   
-ui <- navbarPage(title = "CA Collaborative Fisheries Research Program Data: 2007-2018", theme = 'bootstrap_yeti.css',
+ui <- navbarPage(title = "CCFRP Data App : 2007-2018", theme = 'bootstrap_yeti.css',
     
 
  
-tabPanel('Main Data',
+tabPanel('CPUE and Length Data',
  #  
  #  
  #  #Want to merge northern blue and deacon and have it be an option
@@ -31,7 +31,7 @@ tabPanel('Main Data',
  
  # # fluidRow(column(1),column(9,tags$h2('CA Collaborative Fisheries Research Program Data: 2007-16'))),
     
-  fluidRow(column(3,
+  fluidRow(column(4,
              wellPanel(
               selectInput(inputId = 'fishspp',
                           label = 'Species',
@@ -50,8 +50,8 @@ tabPanel('Main Data',
               # tags$img(height = 200,width = 200,
               #          src = 'mlml.png'),
              
-           column(9,
-           tags$h4('Welcome to the CCFRP data app!'),
+           column(8,
+           tags$h4('Welcome to the CA Collaborative Fisheries Research Program data app!'),
            tags$h5('Please select a', tags$em('Species '), ' and a',tags$em('Metric '), ' to investigate trends in catch-rates
                    and lengths in central California',tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
            tags$h5('Check out the', 
@@ -67,7 +67,7 @@ tabPanel('Main Data',
   
   #Use fluid row to define new rows, use column to make a space and then define width of columsn
   fluidRow(
-           column(8, plotOutput(outputId = 'fish.plot'), offset = 2)),  # ,height = 400, width = 675)
+           column(8, plotOutput(outputId = 'fish.plot',height = 550, width = 750), offset = 1)),  # ,height = 400, width = 675)
    
   fluidRow('...'),        
   fluidRow(
@@ -104,7 +104,7 @@ tabPanel('Gear Data',
 #          
            fluidRow(
              column(8, 
-                    plotOutput(outputId = 'gear.plot'), offset = 2)),  # ,height = 400, width = 675)
+                    plotOutput(outputId = 'gear.plot',height = 550, width = 750), offset = 1)),  # ,height = 400, width = 675)
            fluidRow('...'),       
            fluidRow(
              column(5),
@@ -143,7 +143,10 @@ gear.data = read.csv('data/Gear.data.CCFRP_2018.csv')
 
 #R server
 server <- function(input, output) {
-   
+  #font size 
+  fs = 12
+  
+  #Plots for CPUE and Length Tab
    output$fish.plot = renderPlot({
     #R code here to build plot
 
@@ -151,24 +154,24 @@ server <- function(input, output) {
      #############
      #Define the plot theme once:
      plot.theme = theme(
-       axis.text.x = element_text(size = 11, colour = 'black', angle = 90, hjust = 1, vjust = .5), #small to get all years to fit
-       axis.text.y = element_text(size = 11, colour = 'black'),
+       axis.text.x = element_text(size = fs, colour = 'black', angle = 90, hjust = 1, vjust = .5), #small to get all years to fit
+       axis.text.y = element_text(size = fs, colour = 'black'),
        axis.title.x = element_blank(),
-       axis.title.y = element_text(size = 11),
+       axis.title.y = element_text(size = fs),
        axis.ticks = element_line(size = 0.5, colour = 'black'),
        axis.ticks.length = unit(0.2, 'cm'),   #set length of tick marks
-       plot.title = element_text(size = 11),
+       plot.title = element_text(size = fs),
        
        #facet theme items
        strip.background = element_rect(fill = "white"),
-       strip.text.x = element_text(size = 11),
+       strip.text.x = element_text(size = fs),
        
        #legend parameters
        # legend.position = c(0.95, 1.1), #4 plot configurations
-       legend.position = c(0.92, 1.10),  # for two plot configurations
+       legend.position = c(0.92, 1.05),  # for two plot configurations
        legend.key = element_blank(),
        legend.background = element_blank(),
-       legend.text = element_text(size = 11),
+       legend.text = element_text(size = fs),
        
        #grid line parameters
        panel.grid.major = element_blank(),
@@ -378,19 +381,20 @@ server <- function(input, output) {
    
   output$gear.plot = renderPlot({
     
-    
+  # fs = 12
+  
    plot.theme = theme(
-   axis.text.x = element_text(size = 11, colour = 'black', angle = 90, hjust = 1, vjust = .5), #small to get all years to fit
-   axis.text.y = element_text(size = 11, colour = 'black'),
+   axis.text.x = element_text(size = fs, colour = 'black', angle = 90, hjust = 1, vjust = .5), #small to get all years to fit
+   axis.text.y = element_text(size = fs, colour = 'black'),
    axis.title.x = element_blank(),
-   axis.title.y = element_text(size = 11),
+   axis.title.y = element_text(size = fs),
    axis.ticks = element_line(size = 0.5, colour = 'black'),
    axis.ticks.length = unit(0.2, 'cm'),   #set length of tick marks
-   plot.title = element_text(size = 11),
+   plot.title = element_text(size = fs),
    
    #facet theme items
    strip.background = element_rect(fill = "white"),
-   strip.text.x = element_text(size = 11),
+   strip.text.x = element_text(size = fs),
    
    #legend parameters
    # legend.position = c(0.95, 1.1), #4 plot configurations
@@ -398,7 +402,7 @@ server <- function(input, output) {
    legend.direction = 'horizontal',# for two plot configurations
    legend.key = element_blank(),
    legend.background = element_blank(),
-   legend.text = element_text(size = 11),
+   legend.text = element_text(size = fs),
    #grid line parameters
    panel.grid.major = element_blank(),
    panel.grid.minor = element_blank(),
