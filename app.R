@@ -15,7 +15,7 @@ library(shinyWidgets)
  library(tidyverse)
 
  
-image.size = 50  #pixels?
+image.size = 75  #pixels?
  
   
 ui <- navbarPage(title = "CA Collaborative Fisheries Research Program Data: 2007-2018", theme = 'bootstrap_yeti.css',
@@ -60,12 +60,10 @@ tabPanel('Main Data',
            tags$h6("*** MPA = Marine Protected Area***"),
            tags$h6("*** REF = Reference (outside MPA)***"))       
            
-           # column(3
-           #   )),
   ),
        
 
- # tags$img(height = 100,width = 100,src = 'ccfrp.png')
+
   
   #Use fluid row to define new rows, use column to make a space and then define width of columsn
   fluidRow(
@@ -88,52 +86,38 @@ tabPanel('Main Data',
 tabPanel('Gear Data',
          fluidRow(column(3,
                          wellPanel(
-                           selectInput(inputId = 'fishspp',
+                           selectInput(inputId = 'gear.plot',
                                        label = 'Plot Type',
                                        choices = c('Total Gear','By Year',
                                                    'By Location','By Species')))),
 
 #                   
                   column(9,
-                         tags$h4('See how different gear types fish'),
-                         tags$h5('Please select a', tags$em('Plot Type '),  ' to investigate how different,
-
-                                 Gear types hav fished in',tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
+                         tags$h4('Gear Type Differences'),
+                         tags$h5('Please select a', tags$em('Plot Type '),  'to investigate how different Gear types have fished in',
+                                 tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
                          tags$h5('Check out the',
                                  tags$a(href = 'https://https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
-                                 'for additional information about this program'),
-                         tags$h6("*** MPA = Marine Protected Area***"),
-                         tags$h6("*** REF = Reference (outside MPA)***"))))
+                                 'for additional information about this program'))),
 
-)
-#                   
-#                   # column(3
-#                   #   )),
-#                   ),
+
 #          
-#          
-#          # tags$img(height = 100,width = 100,src = 'ccfrp.png')
-#          
-#          #Use fluid row to define new rows, use column to make a space and then define width of columsn
-#          fluidRow(
-#            column(8, plotOutput(outputId = 'gear.plot'))),  # ,height = 400, width = 675)
-#          
-#          fluidRow('...'),        
-#          fluidRow(column(1),
-#                   column(3,
-#                          tags$img(height = image.size , width = image.size, src = 'mlml.png')),
-#                   column(3),
-#                   column(3,
-#                          tags$img(height = image.size, width = image.size,src = 'ccfrp.png')),
-#                   column(2))
-#          
+           fluidRow(
+             column(8, 
+                    plotOutput(outputId = 'gear.plot'), offset = 2)),  # ,height = 400, width = 675)
+           fluidRow('...'),       
+           fluidRow(
+             column(5),
+             column(1,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
+             column(1,tags$img(height = image.size, width = image.size,src = 'ccfrp.png')),
+             column(5)))
 #          
 #          
 #          
 #          
 # ))
 
-
+)
   
 
 
@@ -392,10 +376,165 @@ server <- function(input, output) {
   })
   
    
-  # output$gear.plot = renderPlot({
+  output$gear.plot = renderPlot({
+    
+    
+   plot.theme = theme(
+   axis.text.x = element_text(size = 11, colour = 'black', angle = 90, hjust = 1, vjust = .5), #small to get all years to fit
+   axis.text.y = element_text(size = 11, colour = 'black'),
+   axis.title.x = element_blank(),
+   axis.title.y = element_text(size = 11),
+   axis.ticks = element_line(size = 0.5, colour = 'black'),
+   axis.ticks.length = unit(0.2, 'cm'),   #set length of tick marks
+   plot.title = element_text(size = 11),
+   
+   #facet theme items
+   strip.background = element_rect(fill = "white"),
+   strip.text.x = element_text(size = 11),
+   
+   #legend parameters
+   # legend.position = c(0.95, 1.1), #4 plot configurations
+   legend.position = 'bottom',
+   legend.direction = 'horizontal',# for two plot configurations
+   legend.key = element_blank(),
+   legend.background = element_blank(),
+   legend.text = element_text(size = 11),
+   #grid line parameters
+   panel.grid.major = element_blank(),
+   panel.grid.minor = element_blank(),
+   panel.background = element_blank(),
+   panel.border = element_rect(fill = NA), 
+   axis.line.x = element_line(colour = 'black',size = 0.5),
+   
+   plot.margin = unit(c(0.25, 0.25, 0.5, 0.25),'cm'))
+
+
+
+#Selective plot based on input
+   # 'Total Gear','By Year',
+   # 'By Location','By Species'
+if(input$gear.plot == 'Total Gear'){
+  
+  gear.summary = ddply(gear.data, 'Gear.Type', summarize,
+                       N = length(Gear.Type))%>% 
+    mutate(label_height = 0.5 * N, total.fish = sum(N)) %>% 
+    mutate(Percent = round(N/total.fish, 3) * 100 , percent.height = N * 0.4) %>% 
+    na.omit()
+  
+  #Pie chart
+  lbls <- paste(gear.summary$Gear.Type, "\n", gear.summary$N, "\n", " ", gear.summary$Percent, "%", sep="")
+  par(mai = c(0,0,0,0), omi = c(0,0,0,0))
+  pie(gear.summary$N, labels = '', main="",col = c('darkgoldenrod1','tomato3','steelblue'),
+      radius = 1, lwd = 2, clockwise = T )
+  
+  text(.5,.25,labels = lbls[1]) #Shrimpflies no bait: Yellow
+  text(0,-.5,labels = lbls[2]) #Shrimpflies with bait: Red
+  text(-0.5,.25,labels = lbls[3]) #Bar: Blue
+  
+  
+  
+}else if(input$gear.plot== 'By Year'){
+  
+  gear.year.summary = ddply(gear.data, c('Gear.Type', 'Year'), summarize,
+                            N = length(Gear.Type)) %>% 
+    ddply( .(Year), transform, sum.fish = sum(N)) %>%  #total of each species
+    ddply( .(Year), transform, 
+           percent = N/sum.fish,
+           position = 1-((cumsum(N)/sum.fish) - (0.5 * N/sum.fish))) %>% #create proportion 
+    mutate(perc.lab = round(percent, 3) * 100) %>% #create new percent factor for label in plot
+    na.omit()
+  
+  years = range(as.numeric(gear.year.summary$Year))
+  
+ggplot(gear.year.summary, aes(x=Year, y = N, fill = Gear.Type)) +
+    geom_bar(stat="identity", colour='black',position='fill') +      # position = fill makes it percent of eachj
+    scale_fill_manual(values = c('darkgoldenrod1','tomato3','steelblue'))+                             # colour palette
+    scale_y_continuous(expand = c(0, 0)) + 
+    scale_x_continuous(breaks = seq(years[1], years[2], 1))+# get rid of space under bars
+    xlab("")+                                                       # x-axis label
+    ylab("Proportion")+                                            #y-axis label (even though it is horizontal)
+    labs(fill = "Gear Type")+                                      # label the legend title (by naming what is being filled by color)
+    ggtitle("Gear Type by Year")  +
+    coord_flip()+
+    #label percent of each gear type
+    geom_text(data = gear.year.summary, aes(x = Year, y = position, 
+                                          label = paste0(perc.lab,"%")), size = 4)+
+    plot.theme
+    
+  
+
+  
+  
+}else if(input$gear.plot== 'By Location'){
+  
+  gear.location.summary = gear.data %>% 
+    group_by(Area, Gear.Type) %>% 
+    summarise(counts = n()) %>% 
+    mutate(percent = counts/sum(counts),
+           position = 1-(cumsum(percent) - (0.5 * percent)),
+           perc.lab = round(percent*100,1))
+  
+  
+  
+  ggplot(gear.location.summary,mapping = aes(x = Area, y = percent, fill = Gear.Type))+
+    geom_bar(stat="identity", colour='black',position='fill') +      # position = fill makes it percent of eachj
+    scale_fill_manual(values = c('darkgoldenrod1','tomato3','steelblue'))+                             # colour palette
+    scale_y_continuous(expand = c(0, 0)) + 
+    # scale_x_continuous(breaks = seq(years[1], years[2], 1))+# get rid of space under bars
+    xlab("")+                                                       # x-axis label
+    ylab("Proportion")+                                            #y-axis label (even though it is horizontal)
+    labs(fill = "Gear Type")+                                      # label the legend title (by naming what is being filled by color)
+    ggtitle("Gear Type by Location")  +
+    coord_flip()+
+    geom_text(data = gear.location.summary, aes(x = Area, y = position, 
+                                                label = paste0(perc.lab,"%")), size = 4) +
+    
+    ggplot.ccfrp.theme
+  
+  
+}else if(input$gear.plot== 'By Species'){
+  
+  
+  gear.species.summary = ddply(gear.data, c('Gear.Type', 'Common.Name'), summarize,
+                               N = length(Gear.Type)) %>% 
+    filter(Common.Name %in% c('Black Rockfish','Blue Rockfish', 'Canary Rockfish', 'China Rockfish',
+                              'Copper Rockfish', 'Gopher Rockfish', 'Kelp Rockfish', 'Lingcod', 
+                              'Olive Rockfish', 'Vermilion Rockfish','Yellowtail Rockfish')) %>% 
+    droplevels() %>% 
+    ddply( .(Common.Name), 
+           transform, sum.fish = sum(N)) %>%  #total of each species
+    ddply( .(Common.Name), transform,
+           percent  = N/sum.fish,
+           position = 1-((cumsum(N)/ sum.fish) - (0.5 * N/sum.fish))) %>% #create proportion 
+    mutate(perc.lab = round(percent, 2)*100) %>%  #create new percent factor for label in plot
+    na.omit()
+  
+  
+  #plot
+  ggplot(gear.species.summary, aes(x=Common.Name, y=N, colour = factor(Gear.Type), fill = Gear.Type)) +
+    geom_bar(stat="identity", colour='black',position='fill') +      # position = fill makes it percent of eachj
+    # geom_text(aes(y=label_height, label=N),       # add the labels
+    #           colour="white") +                       # label colour
+    scale_fill_manual(values = c('darkgoldenrod1','tomato3','steelblue'))+
+    scale_y_continuous(expand = c(0,0)) +# colour palette
+    xlab("") +                                     # x-axis label
+    ylab("Proportion") +  #y-axis label (even though it is horizontal)
+    labs(fill = "Gear Type")+# label the legend title (by naming what is being filled by color)
+    ggtitle("Gear Type by Species") +
+    coord_flip()+
+    geom_text(data=gear.species.summary, aes(x = Common.Name, y = position, 
+                                             label = paste0(perc.lab,"%")), size = 4, colour = 'black') + #can now label percentages
+    
+    ggplot.ccfrp.theme +
+    
+    #reverse legend order
+    guides(fill = guide_legend(reverse=TRUE))
+  
+  
+  
+}
   #   
-  #   
-  # }) 
+  }) 
   
 }
 
