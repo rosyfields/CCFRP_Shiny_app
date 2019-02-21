@@ -1,0 +1,13 @@
+name: ccfrpapp
+title: CCFRP-App
+username:
+account: rosyfields
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 167509
+bundleId: 1888096
+url: https://rosyfields.shinyapps.io/ccfrpapp/
+when: 1550708466.64598
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: ._.DS_Store
