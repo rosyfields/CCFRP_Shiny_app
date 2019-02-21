@@ -465,7 +465,7 @@ ggplot(gear.year.summary, aes(x=Year, y = N, fill = Gear.Type)) +
 
   
   
-}else if(input$gear.plot== 'By Location'){
+}else if(input$gear.plot == 'By Location'){
   
   gear.location.summary = gear.data %>% 
     group_by(Area, Gear.Type) %>% 
@@ -489,7 +489,7 @@ ggplot(gear.year.summary, aes(x=Year, y = N, fill = Gear.Type)) +
     geom_text(data = gear.location.summary, aes(x = Area, y = position, 
                                                 label = paste0(perc.lab,"%")), size = 4) +
     
-    ggplot.ccfrp.theme
+    plot.theme
   
   
 }else if(input$gear.plot== 'By Species'){
@@ -525,7 +525,7 @@ ggplot(gear.year.summary, aes(x=Year, y = N, fill = Gear.Type)) +
     geom_text(data=gear.species.summary, aes(x = Common.Name, y = position, 
                                              label = paste0(perc.lab,"%")), size = 4, colour = 'black') + #can now label percentages
     
-    ggplot.ccfrp.theme +
+    plot.theme +
     
     #reverse legend order
     guides(fill = guide_legend(reverse=TRUE))
