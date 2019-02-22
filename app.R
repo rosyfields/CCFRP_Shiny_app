@@ -18,9 +18,9 @@ library(shinyWidgets)
 image.size = 75  #pixels?
  
   
-ui <- navbarPage(title = "CCFRP Data App : 2007-2018", theme = 'bootstrap_yeti.css',
+ui <- navbarPage(title = "CCFRP Data App : 2007-2018", theme = 'bootstrap_yeti.css',inverse = FALSE,
     
-
+                 # theme = 'bootstrap_yeti.css',
  
 tabPanel('CPUE and Length Data',
  #  
@@ -30,7 +30,18 @@ tabPanel('CPUE and Length Data',
  #  
  
  # # fluidRow(column(1),column(9,tags$h2('CA Collaborative Fisheries Research Program Data: 2007-16'))),
-    
+  fluidRow(
+    column(1),
+    column(10,
+        tags$h3('Welcome to the CA Collaborative Fisheries Research Program data app!'),
+        tags$h5('Please select a', tags$em('Species '), ' and a',tags$em('Metric '), ' to investigate trends in catch-rates
+                and lengths in central California',tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
+        tags$h5('Check out the', 
+                tags$a(href = 'https://https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
+                'for additional information about this program'),
+        tags$h6("*** MPA = Marine Protected Area***"),
+        tags$h6("*** REF = Reference (outside MPA)***")),
+    column(1)),  
   fluidRow(column(4,
              wellPanel(
               selectInput(inputId = 'fishspp',
@@ -47,27 +58,10 @@ tabPanel('CPUE and Length Data',
               selectInput(inputId = 'metric',
                           label = 'Metric',
                           choices = c('CPUE', 'Length (cm)','Length Boxplot')))),
-              # tags$img(height = 200,width = 200,
-              #          src = 'mlml.png'),
+           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 600))),
              
-           column(8,
-           tags$h4('Welcome to the CA Collaborative Fisheries Research Program data app!'),
-           tags$h5('Please select a', tags$em('Species '), ' and a',tags$em('Metric '), ' to investigate trends in catch-rates
-                   and lengths in central California',tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
-           tags$h5('Check out the', 
-                   tags$a(href = 'https://https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
-                   'for additional information about this program'),
-           tags$h6("*** MPA = Marine Protected Area***"),
-           tags$h6("*** REF = Reference (outside MPA)***"))       
-           
-  ),
-       
+             
 
-
-  
-  #Use fluid row to define new rows, use column to make a space and then define width of columsn
-  fluidRow(
-           column(8, plotOutput(outputId = 'fish.plot',height = 550, width = 750), offset = 1)),  # ,height = 400, width = 675)
    
   fluidRow('...'),        
   fluidRow(
@@ -168,7 +162,7 @@ server <- function(input, output) {
        
        #legend parameters
        # legend.position = c(0.95, 1.1), #4 plot configurations
-       legend.position = c(0.92, 1.05),  # for two plot configurations
+       legend.position = c(0.92, 1.1),  # for two plot configurations
        legend.key = element_blank(),
        legend.background = element_blank(),
        legend.text = element_text(size = fs),
