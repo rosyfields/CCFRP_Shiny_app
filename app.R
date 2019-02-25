@@ -41,10 +41,14 @@ tabPanel('CPUE and Length Data',
                 'for additional information about this program'),
         tags$h6("*** MPA = Marine Protected Area***"),
         tags$h6("*** REF = Reference (outside MPA)***")),
-    column(1)),  
+    column(1)), 
+ 
+ 
+ 
   fluidRow(column(4,
+                  
              wellPanel(
-              selectInput(inputId = 'fishspp',
+                selectInput(inputId = 'fishspp',
                           label = 'Species',
                           choices = c('Black Rockfish', 'Blue Rockfish',
                                       'Canary Rockfish', 'China Rockfish',
@@ -54,22 +58,24 @@ tabPanel('CPUE and Length Data',
                                       'Vermilion Rockfish','Yellowtail Rockfish', 'Total')),
               
               # Metric
-              
-              selectInput(inputId = 'metric',
+                selectInput(inputId = 'metric',
                           label = 'Metric',
                           choices = c('CPUE', 'Length (cm)','Length Boxplot')))),
-           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 600))),
+              # plotOutput(outputId = 'fish.cartoon.plot')),
+           
+           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 550))),
              
              
 
    
-  fluidRow('...'),        
+     
   fluidRow(
-           column(5),
-           column(1,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
-           column(1,
+           column(3),
+           column(2,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
+           column(2,
                  tags$img(height = image.size, width = image.size,src = 'ccfrp.png')),
-           column(5))
+           column(2,plotOutput(outputId = 'fish.cartoon.plot')),
+           column(3))
                   
                  
             
@@ -139,6 +145,22 @@ gear.data = read.csv('data/Gear.data.CCFRP_2018.csv')
 server <- function(input, output) {
   #font size 
   fs = 12
+  
+  
+  output$fish.cartoon.plot = renderImage({
+    
+    plot.name = paste0('www/',input$fishspp, '.PNG')
+    
+    list(src = plot.name,
+         
+         width = 100,
+         height = 75)
+    
+    
+  }, deleteFile = FALSE)
+  
+  
+  
   
   #Plots for CPUE and Length Tab
    output$fish.plot = renderPlot({
