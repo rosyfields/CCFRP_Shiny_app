@@ -31,7 +31,7 @@ tabPanel('CPUE and Length Data',
  
  # # fluidRow(column(1),column(9,tags$h2('CA Collaborative Fisheries Research Program Data: 2007-16'))),
   fluidRow(
-    column(1),
+    
     column(10,
         tags$h3('Welcome to the CA Collaborative Fisheries Research Program data app!'),
         tags$h5('Please select a', tags$em('Species '), ' and a',tags$em('Metric '), ' to investigate trends in catch-rates
@@ -41,7 +41,7 @@ tabPanel('CPUE and Length Data',
                 'for additional information about this program'),
         tags$h6("*** MPA = Marine Protected Area***"),
         tags$h6("*** REF = Reference (outside MPA)***")),
-    column(1)), 
+    column(2, tags$img(height = image.size, width = image.size,src = 'ccfrp.png'))), 
  
  
  
@@ -60,22 +60,30 @@ tabPanel('CPUE and Length Data',
               # Metric
                 selectInput(inputId = 'metric',
                           label = 'Metric',
-                          choices = c('CPUE', 'Length (cm)','Length Boxplot')))),
-              # plotOutput(outputId = 'fish.cartoon.plot')),
+                          choices = c('CPUE', 'Length (cm)','Length Boxplot'))),
+             
+             
+                    HTML("<div style='height: 150px;'>"),
+                    plotOutput(outputId = 'fish.cartoon.plot'),
+                    HTML("</div>")),
+             
+             
            
-           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 550))),
+           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 550)))
              
              
 
    
      
-  fluidRow(
-           column(3),
-           column(2,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
-           column(2,
-                 tags$img(height = image.size, width = image.size,src = 'ccfrp.png')),
-           column(2,plotOutput(outputId = 'fish.cartoon.plot')),
-           column(3))
+  # fluidRow(
+  # 
+  #          # column(2,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
+  #          column(12))
+  # 
+  #          # column(2,
+  #          #       tags$img(height = image.size, width = image.size,src = 'ccfrp.png')))
+  #          # column(2,plotOutput(outputId = 'fish.cartoon.plot')),
+
                   
                  
             
@@ -152,9 +160,9 @@ server <- function(input, output) {
     plot.name = paste0('www/',input$fishspp, '.PNG')
     
     list(src = plot.name,
-         
-         width = 100,
-         height = 75)
+         contentType = 'image/png',
+         width = 250,
+         height = 150)
     
     
   }, deleteFile = FALSE)
