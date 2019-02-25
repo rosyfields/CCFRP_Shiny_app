@@ -20,17 +20,10 @@ image.size = 75  #pixels?
   
 ui <- navbarPage(title = "CCFRP Data App : 2007-2018", theme = 'bootstrap_yeti.css',inverse = FALSE,
     
-                 # theme = 'bootstrap_yeti.css',
+
  
 tabPanel('CPUE and Length Data',
- #  
- #  
- #  #Want to merge northern blue and deacon and have it be an option
- # 
- #  
- 
- # # fluidRow(column(1),column(9,tags$h2('CA Collaborative Fisheries Research Program Data: 2007-16'))),
-  fluidRow(
+   fluidRow(
     
     column(10,
         tags$h3('Welcome to the CA Collaborative Fisheries Research Program data app!'),
@@ -41,7 +34,7 @@ tabPanel('CPUE and Length Data',
                 'for additional information about this program'),
         tags$h6("*** MPA = Marine Protected Area***"),
         tags$h6("*** REF = Reference (outside MPA)***")),
-    column(2, tags$img(height = image.size, width = image.size,src = 'ccfrp.png'))), 
+    column(2, tags$img(height = image.size, width = image.size,src = 'ccfrp.png'))), #end of fluidRow
  
  
  
@@ -55,41 +48,26 @@ tabPanel('CPUE and Length Data',
                                       'Deacon Rockfish', 'Gopher Rockfish',
                                       'Kelp Greenling',  'Kelp Rockfish','Lingcod','Olive Rockfish', 
                                       'Rosy Rockfish',   'Starry Rockfish',
-                                      'Vermilion Rockfish','Yellowtail Rockfish', 'Total')),
+                                      'Vermilion Rockfish','Yellowtail Rockfish', 'Total')), #end Select Input
               
               # Metric
                 selectInput(inputId = 'metric',
                           label = 'Metric',
-                          choices = c('CPUE', 'Length (cm)','Length Boxplot'))),
+                          choices = c('CPUE', 'Length (cm)','Length Boxplot'))), #end of selectInput and Well panel
              
-             
+             #HTML hack I found to limit size of fish plots
                     HTML("<div style='height: 150px;'>"),
                     plotOutput(outputId = 'fish.cartoon.plot'),
                     HTML("</div>")),
              
              
            
-           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 550)))
+           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 550))) #end of Fluid Row
              
-             
-
-   
-     
-  # fluidRow(
-  # 
-  #          # column(2,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
-  #          column(12))
-  # 
-  #          # column(2,
-  #          #       tags$img(height = image.size, width = image.size,src = 'ccfrp.png')))
-  #          # column(2,plotOutput(outputId = 'fish.cartoon.plot')),
-
-                  
-                 
-            
   
-  
-    ),
+    ), #end of tabPanel
+
+#Gear Analysis Tab
 
 tabPanel('Gear Data',
          fluidRow(column(3,
@@ -98,38 +76,34 @@ tabPanel('Gear Data',
                                        label = 'Plot Type',
                                        choices = c('Total Gear','By Year',
                                                    'By Location','By Species')))),
-
-#                   
                   column(9,
                          tags$h4('Gear Type Differences'),
                          tags$h5('Please select a', tags$em('Plot Type '),  'to investigate how different Gear types have fished in',
                                  tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
                          tags$h5('Check out the',
                                  tags$a(href = 'https://https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
-                                 'for additional information about this program'))),
+                                 'for additional information about this program'))), #end fluidRow
 
 
 #          
            fluidRow(
-             column(8, 
-                    plotOutput(outputId = 'gear.plot',height = 550, width = 750), offset = 1)),  # ,height = 400, width = 675)
+             column(8, plotOutput(outputId = 'gear.plot',height = 550, width = 750), offset = 1)), #end fluidrow
            fluidRow('...'),       
            fluidRow(
              column(5),
              column(1,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
              column(1,tags$img(height = image.size, width = image.size,src = 'ccfrp.png')),
-             column(5)))
-#          
-#          
-#          
-#          
-# ))
+             column(5))#end fluidRow
 
-)
+)#end TabPanel
+
+)#end ui
   
 
 
 
+####################################
+####################################
 ####################################
 
 #Load Data
@@ -147,14 +121,17 @@ species.maturities = read.csv('data/Species_Maturities_2017.csv')
 gear.data = read.csv('data/Gear.data.CCFRP_2018.csv')
 
 
-#############################
+####################################
+####################################
+####################################
+
 
 #R server
 server <- function(input, output) {
   #font size 
   fs = 12
   
-  
+  #Larry Allen's artwork
   output$fish.cartoon.plot = renderImage({
     
     plot.name = paste0('www/',input$fishspp, '.PNG')
@@ -171,6 +148,9 @@ server <- function(input, output) {
   
   
   #Plots for CPUE and Length Tab
+  
+ 
+  
    output$fish.plot = renderPlot({
     #R code here to build plot
 
@@ -185,13 +165,10 @@ server <- function(input, output) {
        axis.ticks = element_line(size = 0.5, colour = 'black'),
        axis.ticks.length = unit(0.2, 'cm'),   #set length of tick marks
        plot.title = element_text(size = fs),
-       
-       #facet theme items
+
        strip.background = element_rect(fill = "white"),
        strip.text.x = element_text(size = fs),
-       
-       #legend parameters
-       # legend.position = c(0.95, 1.1), #4 plot configurations
+
        legend.position = c(0.92, 1.1),  # for two plot configurations
        legend.key = element_blank(),
        legend.background = element_blank(),
@@ -206,10 +183,17 @@ server <- function(input, output) {
        
        plot.margin = unit(c(0.25, 0.25, 0.5, 0.25),'cm'))
      
-     
+  ##########################################   
     
      #Selective plot based on input
-     if(input$metric =='CPUE'){
+     if(input$metric != 'CPUE' & input$fishspp == 'Total'){
+    
+       par(bg = 'black', ps = 14)
+       plot(1,1, type = 'n',xaxt = 'n', yaxt = 'n', ylab = '', xlab = '')  # 
+       text(1,1, labels = "'Total' not supported for Length Plots \n Please choose a different Species", col = 'white')
+       
+       
+     } else if(input$metric =='CPUE'){
        
      data = fish.cpue
        
@@ -400,7 +384,9 @@ server <- function(input, output) {
         
         
       }
+   
   })
+  
   
    
   output$gear.plot = renderPlot({
