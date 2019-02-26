@@ -17,11 +17,9 @@ library(shinyWidgets)
  
 image.size = 75  #pixels?
  
-  
-ui <- navbarPage(title = "CCFRP Data App : 2007-2018", theme = 'bootstrap_yeti.css',inverse = FALSE,
-    
-
- 
+#  
+ui <- navbarPage(title = "CCFRP Data App : 2007-2018",theme = 'bootstrap_yeti.css',inverse = TRUE,
+                 
 tabPanel('CPUE and Length Data',
    fluidRow(
     
@@ -129,7 +127,8 @@ gear.data = read.csv('data/Gear.data.CCFRP_2018.csv')
 #R server
 server <- function(input, output) {
   #font size 
-  fs = 12
+  fs = 14
+  gear.fs = 6
   
   #Larry Allen's artwork
   output$fish.cartoon.plot = renderImage({
@@ -285,7 +284,7 @@ server <- function(input, output) {
         
         #set standard errors that are 'NaN' (due to sample size of 1) equal to zero, so that they will not be plotted
         data.summary$SE[data.summary$SE == 'NaN'] = 0
-        pt.size = 11
+        # pt.size = 11
         
         #define what error bars will be +- standard error 
         limits <- aes(ymax = avg.length + SE, ymin = avg.length - SE) 
@@ -334,7 +333,7 @@ server <- function(input, output) {
         #Scale plot based on years used
         years.used = range(as.numeric(data$Year)) 
         
-        pt.size = 11
+        # pt.size = 11
         
         
         #draw 50% maturity line
@@ -356,7 +355,7 @@ server <- function(input, output) {
           facet_wrap(~ Area, nrow = 2, ncol = 2) +
           
           theme(strip.background = element_rect(fill = "white"),
-                strip.text.x = element_text(size =  pt.size)) +  #facet color
+                strip.text.x = element_text(size =  fs)) +  #facet color
           geom_boxplot(width = .5,position = position_dodge(.7), size = .3, outlier.alpha = .2)+
           scale_colour_gradient(low = "white", high = "blue")+
           
@@ -437,7 +436,7 @@ if(input$gear.plot == 'Total Gear'){
   
   #Pie chart
   lbls <- paste(gear.summary$Gear.Type, "\n", gear.summary$N, "\n", " ", gear.summary$Percent, "%", sep="")
-  par(mai = c(0,0,0,0), omi = c(0,0,0,0))
+  par(mai = c(0,0,0,0), omi = c(0,0,0,0), ps = 18)
   pie(gear.summary$N, labels = '', main="",col = c('darkgoldenrod1','tomato3','steelblue'),
       radius = 1, lwd = 2, clockwise = T )
   
@@ -472,7 +471,7 @@ ggplot(gear.year.summary, aes(x=Year, y = N, fill = Gear.Type)) +
     coord_flip()+
     #label percent of each gear type
     geom_text(data = gear.year.summary, aes(x = Year, y = position, 
-                                          label = paste0(perc.lab,"%")), size = 4)+
+                                          label = paste0(perc.lab,"%")), size = gear.fs)+
     plot.theme
     
   
@@ -501,7 +500,7 @@ ggplot(gear.year.summary, aes(x=Year, y = N, fill = Gear.Type)) +
     ggtitle("Gear Type by Location")  +
     coord_flip()+
     geom_text(data = gear.location.summary, aes(x = Area, y = position, 
-                                                label = paste0(perc.lab,"%")), size = 4) +
+                                                label = paste0(perc.lab,"%")), size = gear.fs) +
     
     plot.theme
   
@@ -537,7 +536,7 @@ ggplot(gear.year.summary, aes(x=Year, y = N, fill = Gear.Type)) +
     ggtitle("Gear Type by Species") +
     coord_flip()+
     geom_text(data=gear.species.summary, aes(x = Common.Name, y = position, 
-                                             label = paste0(perc.lab,"%")), size = 4, colour = 'black') + #can now label percentages
+                                             label = paste0(perc.lab,"%")), size = gear.fs, colour = 'black') + #can now label percentages
     
     plot.theme +
     
