@@ -28,7 +28,7 @@ tabPanel('CPUE and Length Data',
         tags$h5('Please select a', tags$em('Species '), ' and a',tags$em('Metric '), ' to investigate trends in catch-rates
                 and lengths in central California',tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
         tags$h5('Check out the', 
-                tags$a(href = 'https://https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
+                tags$a(href = 'https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
                 'for additional information about this program'),
         tags$h6("*** MPA = Marine Protected Area***"),
         tags$h6("*** REF = Reference (outside MPA)***")),
@@ -60,7 +60,10 @@ tabPanel('CPUE and Length Data',
              
              
            
-           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 550))) #end of Fluid Row
+           column(8, plotOutput(outputId = 'fish.plot',height = 400, width = 550))), #end of Fluid Row
+  
+  fluidRow(column(12,div(style = "height:20px; font-size:8px;",
+                         "Artwork by Larry Allen")))
              
   
     ), #end of tabPanel
@@ -74,24 +77,22 @@ tabPanel('Gear Data',
                                        label = 'Plot Type',
                                        choices = c('Total Gear','By Year',
                                                    'By Location','By Species')))),
-                  column(9,
+                  column(7,
                          tags$h4('Gear Type Differences'),
                          tags$h5('Please select a', tags$em('Plot Type '),  'to investigate how different Gear types have fished in',
                                  tags$a(href = 'https://www.wildlife.ca.gov/Conservation/Marine/MPAs/FAQsite','Marine Protected Areas'), 'since 2007'),
                          tags$h5('Check out the',
-                                 tags$a(href = 'https://https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
-                                 'for additional information about this program'))), #end fluidRow
+                                 tags$a(href = 'https://www.mlml.calstate.edu/fisheries/ccfrp/', 'Fisheries and Conservation Biology Lab'),
+                                 'for additional information about this program')),
+                  column(2,tags$img(height = image.size, width = image.size,src = 'ccfrp.png'))), #end fluidRow
 
 
 #          
            fluidRow(
-             column(8, plotOutput(outputId = 'gear.plot',height = 550, width = 750), offset = 1)), #end fluidrow
-           fluidRow('...'),       
-           fluidRow(
-             column(5),
-             column(1,tags$img(height = image.size , width = image.size, src = 'mlml.png')),
-             column(1,tags$img(height = image.size, width = image.size,src = 'ccfrp.png')),
-             column(5))#end fluidRow
+             column(8, plotOutput(outputId = 'gear.plot',height = 550, width = 750), offset = 1)) #end fluidrow
+
+
+
 
 )#end TabPanel
 
@@ -203,10 +204,6 @@ server <- function(input, output) {
      #need it to be consistent to do summary for ddply()
      colnames(d) = c('Site','Area','Year','IDCellperTrip','Name')
      
-     
-     #ddply() works like a pivot table and will summarize data by Area, then Site, then Year
-     #ggplot needs this sumarized data to pull plot information from
-     
      summary = ddply(d, c('Area', 'Site', 'Year'), summarize,
                      N = length(Name),
                      CPUE = round(mean(Name),1),
@@ -263,28 +260,24 @@ server <- function(input, output) {
         #Will be drawn as horizontal dashed line on graph
         #Set line 300 for undefined species - will not show up on plot
         
-        if(input$fishspp %in% levels(species.maturities$Common.Name) == TRUE){
-          maturity = species.maturities$Female.Maturity.cm[species.maturities$Common.Name == input$fishspp];
-          h.line = geom_hline(yintercept = maturity, linetype = 'dotted')
-        } else{
-          h.line = geom_hline(yintercept = 0, color = 'white')}
+        # if(input$fishspp %in% levels(species.maturities$Common.Name) == TRUE){
+        #   maturity = species.maturities$Female.Maturity.cm[species.maturities$Common.Name == input$fishspp];
+        #   h.line = geom_hline(yintercept = maturity, linetype = 'dotted')
+        # } else{
+        #   h.line = geom_hline(yintercept = 0, color = 'white')}
+        # 
+        # 
+        # #Annoying but repeating to get integer values for maturity to scale plots
+        # if(input$fishspp %in% levels(species.maturities$Common.Name) == TRUE){
+        #   mat.size = species.maturities$Female.Maturity.cm[species.maturities$Common.Name == input$fishspp]
+        # } else{
+        #   mat.size = 18}
+        # 
         
         
-        #Annoying but repeating to get integer values for maturity to scale plots
-        if(input$fishspp %in% levels(species.maturities$Common.Name) == TRUE){
-          mat.size = species.maturities$Female.Maturity.cm[species.maturities$Common.Name == input$fishspp]
-        } else{
-          mat.size = 18}
-        
-        
-        
-        #define filename to save image- This merges the input common name and puts it together with 'cpue plot.png'
-        #can change file type (e.g. .tiff) if desired- i believe ggsave() below will automatically save in this format
 
-        
         #set standard errors that are 'NaN' (due to sample size of 1) equal to zero, so that they will not be plotted
         data.summary$SE[data.summary$SE == 'NaN'] = 0
-        # pt.size = 11
         
         #define what error bars will be +- standard error 
         limits <- aes(ymax = avg.length + SE, ymin = avg.length - SE) 
@@ -300,7 +293,7 @@ server <- function(input, output) {
         
         #define plot named 'length'
         
-        lengthplot = ggplot(data = data.summary, aes(x = Year, y = avg.length, group = Site, colour = Site)) + 
+        ggplot(data = data.summary, aes(x = Year, y = avg.length, group = Site, colour = Site)) + 
           facet_wrap(~ Area, nrow = 2, ncol = 2) +
           
           geom_line(aes(linetype = Site), size = 0.5) +     # Set linetype by sex
@@ -316,10 +309,8 @@ server <- function(input, output) {
           xlab("") + ylab("Mean Length (cm)") + # Set axis labels
           ggtitle(input$fishspp) +     # Set title
           
-          plot.theme +
-          h.line
-        
-        lengthplot
+          plot.theme 
+
       }else {
         
         
@@ -336,22 +327,18 @@ server <- function(input, output) {
         # pt.size = 11
         
         
-        #draw 50% maturity line
-        
-        if(input$fishspp %in% levels(species.maturities$Common.Name) == TRUE){
-          maturity = species.maturities$Female.Maturity.cm[species.maturities$Common.Name == input$fishspp];
-          h.line = geom_hline(yintercept = maturity, linetype = 'dotted')
-        } else{
-          h.line = geom_hline(yintercept = 15, color = 'white')}
-        
-        
-        
-      
+        # #draw 50% maturity line
+        # 
+        # if(input$fishspp %in% levels(species.maturities$Common.Name) == TRUE){
+        #   maturity = species.maturities$Female.Maturity.cm[species.maturities$Common.Name == input$fishspp];
+        #   h.line = geom_hline(yintercept = maturity, linetype = 'dotted')
+        # } else{
+        #   h.line = geom_hline(yintercept = 15, color = 'white')}
+        # 
         
         
-        #define plot named 'length'
-        
-        length.boxplot = ggplot(data = data, aes(x = Site, y = Length.cm, fill = Year.f)) + 
+        #create plot
+        ggplot(data = data, aes(x = Site, y = Length.cm, fill = Year.f)) + 
           facet_wrap(~ Area, nrow = 2, ncol = 2) +
           
           theme(strip.background = element_rect(fill = "white"),
@@ -364,23 +351,12 @@ server <- function(input, output) {
           xlab("") + ylab("Mean Length (cm)") + # Set axis labels-- don't need x axis to say 'Year'
           ggtitle(input$fishspp) +     # Set title
           labs(fill="Year")+
-          
-          
-          #can define all the theme() elements of ggplot at once, Note order does matter if there are conflicting commands
-          #such as individually setting axis text size, then setting overall axis text size- the latter will override the former
-          
-         plot.theme+
-          theme(legend.position = 'right')+
-          # 
-          h.line  #set y intercept to be user input for 50% maturity
-        # 
-        # 
+          plot.theme+
+          theme(legend.position = 'right')
 
-        length.boxplot
+   
         
-        
-        
-        
+      
         
       }
    
