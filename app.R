@@ -267,12 +267,12 @@ server <- function(input, output) {
         #   h.line = geom_hline(yintercept = 0, color = 'white')}
         # 
         # 
-        # #Annoying but repeating to get integer values for maturity to scale plots
-        # if(input$fishspp %in% levels(species.maturities$Common.Name) == TRUE){
-        #   mat.size = species.maturities$Female.Maturity.cm[species.maturities$Common.Name == input$fishspp]
-        # } else{
-        #   mat.size = 18}
-        # 
+        #Annoying but repeating to get integer values for maturity to scale plots
+        if(input$fishspp %in% levels(species.maturities$Common.Name) == TRUE){
+          mat.size = species.maturities$Female.Maturity.cm[species.maturities$Common.Name == input$fishspp]
+        } else{
+          mat.size = 18}
+
         
         
 
